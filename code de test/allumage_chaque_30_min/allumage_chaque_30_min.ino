@@ -64,96 +64,43 @@ int readEEPROM() {
 void openValve() {
   PORTB |= (1 << PB7);
   valveOpen = false;
-  //Serial.println("Vanne fermée.");
-  //delay(1000);
+    Serial.println("Vanne ouverte.");
 }
 
 void closeValve() {
   PORTB &= ~(1 << PB7);
   valveOpen = true;
-  //Serial.println("Vanne ouverte.");
+  Serial.println("Vanne fermée.");
 }
 
 void turnOnCandle() {
   digitalWrite(CANDLE_PIN, LOW);
   candleOn = true;
-  //Serial.println("Bougie allumée.");
+  Serial.println("Bougie allumée.");
 }
 
 void turnOffCandle() {
   digitalWrite(CANDLE_PIN, HIGH);
   candleOn = false;
-  //Serial.println("Bougie éteinte.");
+  Serial.println("Bougie éteinte.");
 }
 
 void loop() {
-    if (count_button_1 != 0) { // Mode manuel activé
- 
+delay(3000);
+  for (int i = 0 ; i < 1000 ; i++){
+      digitalWrite(EXT_LED, HIGH);
       openValve();
-      delay(300);
+      delay(500); //-50
       closeValve();
-      delay(5000);
+      delay(15000);//+5000
       turnOnCandle();
-      delay(200);
+      delay(900);
       openValve();
-      delay(500);
+      delay(1000);//+200 
       closeValve();
       turnOffCandle();
-    
-    count_button_1 = 0;
-    } 
-     if(count_button_2 != 0 && readEEPROM() == 0) 
-    {   
-      blink_EXT_LED(2);
-      EEPROM.write(eepromAddress, 1);
-      count_button_2 = 0;
-    } else     
-    if(count_button_2 != 0 && readEEPROM() == 1) 
-    {   
-      blink_EXT_LED(3);
-      EEPROM.write(eepromAddress, 2);
-      count_button_2 = 0;
-    }else
-    if(count_button_2 != 0 && readEEPROM() == 2) 
-    {   
-      blink_EXT_LED(1);
-      EEPROM.write(eepromAddress, 0);
-      count_button_2 = 0;
-    }
-  sensors.requestTemperatures();
-  float temperatureC = sensors.getTempCByIndex(0);// Lisez la température du premier capteur détecté
-
-   if (temperatureC <= eepromTable [readEEPROM()])
-    {
-      openValve();
-      delay(300);
-      closeValve();
-      delay(5000);
-      turnOnCandle();
-      delay(200);
-      openValve();
-      delay(500);
-      closeValve();
-      turnOffCandle();
-      
-  for(int i = 0 ; i < 8 ; i++){
-      LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
-                SPI_OFF, USART0_OFF, TWI_OFF);
+      digitalWrite(EXT_LED, LOW);
+      delay(300000);
   }
-  } else { // Mode manuel désactivé
-    turnOffCandle();
-    closeValve();
-    }
 
-}
-
-ISR (PCINT2_vect)
-{
-  
-  if (!(PIND & (1 << PD3))) {  // Si BUTTON_1 (PD3) est pressé
-  count_button_1++;
-  }
-  if (!(PIND & (1 << PD4))) {  // Si BUTTON_2 (PD4) est pressé
-  count_button_2++;
-}
 }

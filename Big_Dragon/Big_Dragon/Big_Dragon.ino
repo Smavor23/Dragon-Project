@@ -20,7 +20,7 @@ int Count_StartTmp = 0;
 int eepromAddress = 0;   // Adresse de l'EEPROM pour stocker la valeur
 int countAuto = 0;
 int countAutoMemo = 0;
-float eepromTable [] = {-1.0, 0.0, 1.0}; 
+float eepromTable [] = {5.0, 10.0, 15.0}; 
 float tempC;
 bool valveOpen = false;
 bool candleOn = false;
@@ -114,21 +114,50 @@ void measureTemperature() {
   Serial.println(" °C");
 }
 void Light_Up(){
-    // Exécuter la séquence manuelle
     digitalWrite(EXT_LED, HIGH);
+    //Préchauffage 
     openValve();
-    delay(450); //-50
+    delay(1250); //3000 pour le bruleur
     closeValve();
-    delay(15000);//+5000
+    delay(10000);
     turnOnCandle();
     delay(1000);
     openValve();
-    delay(900);//+300 
+    delay(1900); //3000 pour le brulleur 
     closeValve();
     turnOffCandle();
-    digitalWrite(EXT_LED, LOW);
+    for(int i = 0 ; i < 6 ; i++)
+    { 
+      delay(7000);
+      openValve();
+      delay(1500); //3000 pour le brulleur 
+      closeValve();
+    }
+    //Fin de Préchauffage 
+    delay(30000);
     
+    //Démarrage
+    openValve();
+    delay(1250); //3000 pour le bruleur
+    closeValve();
+    delay(10000);
+    turnOnCandle();
+    delay(1000);
+    openValve();
+    delay(1900); //3000 pour le brulleur 
+    closeValve();
+    turnOffCandle();
+    for(int i = 0 ; i < 4 ; i++)
+    { 
+      delay(7000);
+      openValve();
+      delay(1500); //3000 pour le brulleur 
+      closeValve();
+    }
+    //Fin de Démarrage
+    digitalWrite(EXT_LED, LOW);
   }
+  
 void loop() {
   //blink_LED_R(2);
   //sensors.requestTemperatures();
@@ -153,7 +182,7 @@ void loop() {
     }
     count_button_2 = 0;
   }
-   if (tempC <= eepromTable [readEEPROM()] && Count_StartTmp == 38)
+   if (tempC <= eepromTable [readEEPROM()] && Count_StartTmp == 8)
     {
       Light_Up();
       count_button_2 = 0;
@@ -178,12 +207,12 @@ ISR(PCINT2_vect) {
 ISR(WDT_vect) {
   wdtInterruptCount++;
   Count_StartTmp++;
-  if (wdtInterruptCount >= 38) { // 3 * 8 secondes = environ 1 minute
+  if (wdtInterruptCount >= 3) { // 8 * 8 secondes = environ 1 minute
     Serial.println("Wake up");
     wdtInterruptCount = 0;
-    measureTemperature(); // Mesurer la température toutes les 7 minutes
+    measureTemperature(); // Mesurer la température toutes les minutes
   }
-  if(Count_StartTmp > 38){ //c'est pour allimenter après 64s 
+  if(Count_StartTmp > 8){
     Count_StartTmp = 0;
     }
 }
